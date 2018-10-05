@@ -2,23 +2,23 @@
 #include <NewPing.h>
 #include <LiquidCrystal.h>
 
-int MAX_DISTANCE = 400; // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-int BLAST_ZONE = 10;    // Closest distance we can get to the end zone
+const int MAX_DISTANCE_CM = 400; // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+const int BLAST_ZONE = 10;       // Closest distance we can get to the end zone
 
 // Pin defines
-const int REED_PIN = A0;         // select the input  pin for  the reed
-const int PHOTO_SENSOR_PIN = A1; // select the input  pin for  the potentiometer
+const int REED_PIN = A0;         // select the input pin for  the reed
+const int PHOTO_SENSOR_PIN = A1; // select the input pin for  the potentiometer
+const int TRIGGER_PIN = 4;       // Trigger pin on the ultrasonic sensor.
+const int ECHO_PIN = 6;          // Echo pin on the ultrasonic sensor.
 const int LEFT_SERVO_PIN = 3;
 const int RIGHT_SERVO_PIN = 5;
-const int TRIGGER_PIN = 4; // Arduino pin tied to trigger pin on the ultrasonic sensor.
-const int ECHO_PIN = 6;    // Arduino pin tied to echo pin on the ultrasonic sensor.
 
 bool lookingForBand = true;
 
-NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
-Servo LeftServo;                                    // create new servo object for the left servo
-Servo RightServo;                                   // create new servo object for the right servo
-LiquidCrystal lcd(7, 8, 9, 10, 11, 12);             // initialize the library with the numbers of the interface pins
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE_CM); // NewPing setup of pins and maximum distance.
+Servo LeftServo;                                       // create new servo object for the left servo
+Servo RightServo;                                      // create new servo object for the right servo
+LiquidCrystal lcd(7, 8, 9, 10, 11, 12);                // initialize the library with the numbers of the interface pins
 
 // make a custom walker characters:
 
