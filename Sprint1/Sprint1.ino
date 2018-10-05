@@ -8,8 +8,10 @@ int BLAST_ZONE = 10;    // Closest distance we can get to the end zone
 // Pin defines
 const int REED_PIN = A0;         // select the input  pin for  the reed
 const int PHOTO_SENSOR_PIN = A1; // select the input  pin for  the potentiometer
-const int TRIGGER_PIN = 4;       // Arduino pin tied to trigger pin on the ultrasonic sensor.
-const int ECHO_PIN = 6;          // Arduino pin tied to echo pin on the ultrasonic sensor.
+const int LEFT_SERVO_PIN = 3;
+const int RIGHT_SERVO_PIN = 5;
+const int TRIGGER_PIN = 4; // Arduino pin tied to trigger pin on the ultrasonic sensor.
+const int ECHO_PIN = 6;    // Arduino pin tied to echo pin on the ultrasonic sensor.
 
 bool lookingForBand = true;
 
@@ -32,26 +34,18 @@ byte walker[8] = {
 
 void setup()
 {
+  LeftServo.attach(LEFT_SERVO_PIN);
+  RightServo.attach(RIGHT_SERVO_PIN);
 
-  //Left Servo recieves signal from pin 3
-  LeftServo.attach(3);
-  //Right Servo recieves signal from pin 5
-  RightServo.attach(5);
-  // initialize LCD and set up the number of columns and rows:
-  lcd.begin(16, 2);
-  // create a new character
-  lcd.createChar(5, walker);
-  // Print a message to the lcd.
-  // Start at Upper left corner
-  lcd.setCursor(byte(0), byte(0));
-  // Print walker symbol
-  lcd.write((byte)5); // when calling lcd.write() '0' must be cast as a byte
-  // Print team name
-  lcd.print(" Enraged  G's ");
-  // Print walker symbol
-  lcd.write((byte)5); // when calling lcd.write() '0' must be cast as a byte
-  // Initialize the Serial monitor for readings from the robot
-  Serial.begin(9600);
+  lcd.begin(16, 2); // initialize LCD and set up the number of columns and rows:
+
+  lcd.createChar(5, walker);       // create a new character
+  lcd.setCursor(byte(0), byte(0)); // Start at Upper left corner
+  lcd.write((byte)5);              // Print walker symbol
+  lcd.print(" Enraged  G's ");     // Print team name
+  lcd.write((byte)5);              // Print walker symbol
+
+  Serial.begin(9600); // Initialize the Serial monitor for readings from the robot
 
   stopWheels();
 }
@@ -102,12 +96,17 @@ void send_serial_data(int distance, int photoSensor, int reedValue)
 
 void driveFullSpeed()
 {
-  LeftServo.write(180); // Run Left servo full reverse
-  RightServo.write(0);  //Run Right servo full forward
+  driveSpeed(100, 100);
 }
 
 void stopWheels()
 {
-  LeftServo.write(90);  // Stop Left servo
-  RightServo.write(90); // Stop Right servo
+  driveSpeed(0, 0);
+}
+
+// This is -100 to 100 with 0 being stopped
+void driveSpeed(int leftMotorSpeed, int rightMotorSpeed)
+{
+  LeftServo.write(map(leftMotorSpeed, -100, 100, 0, 180));
+  RightServo.write(map(rightMotorSpeed, -100, 100, 180, 0));
 }
