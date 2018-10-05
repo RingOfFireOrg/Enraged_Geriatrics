@@ -33,3 +33,6 @@
 
 # IDE items
 .vscode/
+
+# MAC love
+.DS_STORE
