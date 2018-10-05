@@ -11,6 +11,8 @@ int sensorPin = A1;     // select the input  pin for  the potentiometer
 int sensorValue = 0;    // variable to  store  the value  coming  from  the sensor
 int reedValue = 0;      // variable to  store  the value  coming  from  the sensor
 
+Boolean lookingForBand = true;
+
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE); // NewPing setup of pins and maximum distance.
 Servo LeftServo;                                    // create new servo object for the left servo
 Servo RightServo;                                   // create new servo object for the right servo
@@ -51,8 +53,7 @@ void setup()
   // Initialize the Serial monitor for readings from the robot
   Serial.begin(9600);
 
-  LeftServo.write(90);
-  RightServo.write(90);
+  stop();
 }
 
 void loop()
@@ -78,13 +79,11 @@ void loop()
 
   if (cm_away < BLAST_ZONE)
   {
-    LeftServo.write(90);  // Stop Left servo
-    RightServo.write(90); // Stop Right servo
+    stop();
   }
   else
   {
-    LeftServo.write(180); // Run Left servo full reverse
-    RightServo.write(0);  //Run Right servo full forward
+    drive();
   }
 
   //send the readings to the LCD screen
@@ -112,6 +111,18 @@ void send_serial_data(int distance, int sensorValue, int reedValue)
   Serial.println(sensorValue); // shows reading off of photoresistor
   Serial.print("Reed: ");
   Serial.println(reedValue); // show reed value
+}
+
+void drive()
+{
+  LeftServo.write(180); // Run Left servo full reverse
+  RightServo.write(0);  //Run Right servo full forward
+}
+
+void stop()
+{
+  LeftServo.write(90);  // Stop Left servo
+  RightServo.write(90); // Stop Right servo
 }
 
 int getDistance()
