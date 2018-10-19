@@ -3,7 +3,7 @@
 #include <LiquidCrystal.h>
 
 const int MAX_DISTANCE_CM = 400; // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-const int BLAST_ZONE = 10;       // Closest distance we can get to the end zone
+const int BLAST_ZONE_CM = 10;    // Closest distance we can get to the end zone
 
 // Pin defines
 const int REED_PIN = A0;         // select the input pin for  the reed
@@ -12,6 +12,10 @@ const int TRIGGER_PIN = 4;       // Trigger pin on the ultrasonic sensor.
 const int ECHO_PIN = 6;          // Echo pin on the ultrasonic sensor.
 const int LEFT_SERVO_PIN = 3;
 const int RIGHT_SERVO_PIN = 5;
+
+const int RED_LED = 11;
+const int GREEN_LED = 12;
+const int BLUE_LED = 13;
 
 bool lookingForBand = true;
 
@@ -37,6 +41,12 @@ void setup()
   LeftServo.attach(LEFT_SERVO_PIN);
   RightServo.attach(RIGHT_SERVO_PIN);
 
+  set_color(255, 0, 0);
+  delay(500);
+  set_color(0, 255, 0);
+  delay(500);
+  set_color(0, 0, 255);
+
   lcd.begin(16, 2); // initialize LCD and set up the number of columns and rows:
 
   lcd.createChar(5, walker);       // create a new character
@@ -60,7 +70,7 @@ void loop()
   send_serial_data(cm_away, photoSensor, reedValue);
   update_display(cm_away, photoSensor, reedValue);
 
-  if (cm_away < BLAST_ZONE)
+  if (cm_away < BLAST_ZONE_CM)
   {
     stopWheels();
   }
@@ -68,6 +78,13 @@ void loop()
   {
     driveFullSpeed();
   }
+}
+
+void set_color(int red, int green, int blue)
+{
+  analogWrite(RED_LED, red);
+  analogWrite(GREEN_LED, green);
+  analogWrite(BLUE_LED, blue);
 }
 
 void update_display(int distance, int photoSensor, int reedValue)
@@ -107,6 +124,6 @@ void stopWheels()
 // This is -100 to 100 with 0 being stopped
 void driveSpeed(int leftMotorSpeed, int rightMotorSpeed)
 {
-  LeftServo.write(map(leftMotorSpeed, -100, 100, 0, 180));
-  RightServo.write(map(rightMotorSpeed, -100, 100, 180, 0));
+  LeftServo.write(map(leftMotorSpeed, -100, 100, 180, 0));
+  RightServo.write(map(rightMotorSpeed, -100, 100, 0, 180));
 }
