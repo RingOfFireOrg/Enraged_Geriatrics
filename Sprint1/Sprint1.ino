@@ -4,6 +4,8 @@
 
 const int MAX_DISTANCE_CM = 400; // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 const int BLAST_ZONE_CM = 10;    // Closest distance we can get to the end zone
+const int BAND_THRESHOLD = 600;  // Photo sensor value distinguishing between white and a color band
+const int BAND_DELAY_MS = 3*1000; // Number of milliseconds to pause in the color band
 
 // Pin defines
 const int REED_PIN = A0;         // select the input pin for  the reed
@@ -17,7 +19,12 @@ const int RED_LED = 11;
 const int GREEN_LED = 12;
 const int BLUE_LED = 13;
 
+const int PUSH_BUTTON_PIN = 10;  // Pin for the push button that will start the car moving
+
+bool startedDriving = false;
 bool lookingForBand = true;
+int displayColor = 0;
+int previousButtonValue;
 
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE_CM); // NewPing setup of pins and maximum distance.
 Servo LeftServo;                                       // create new servo object for the left servo
@@ -58,17 +65,22 @@ void setup()
   Serial.begin(9600); // Initialize the Serial monitor for readings from the robot
 
   stopWheels();
+  previousButtonValue = digitalRead(PUSH_BUTTON_PIN);
 }
 
 void loop()
 {
-  int photoSensor = analogRead(PHOTO_SENSOR_PIN);
+  if (!isDriving()) {
+    return;
+  }
+
+  int photoSensorValue = analogRead(PHOTO_SENSOR_PIN);
   int reedValue = analogRead(REED_PIN);
 
   int cm_away = sonar.convert_cm(sonar.ping_median());
 
-  send_serial_data(cm_away, photoSensor, reedValue);
-  update_display(cm_away, photoSensor, reedValue);
+  send_serial_data(cm_away, photoSensorValue, reedValue);
+  update_display(cm_away, photoSensorValue, reedValue);
 
   if (cm_away < BLAST_ZONE_CM)
   {
@@ -76,8 +88,38 @@ void loop()
   }
   else
   {
+    if (lookingForBand) {
+      if (photoSensorValue > BAND_THRESHOLD) {
+        lookingForBand = false;
+        stopWheels();
+        change_color();
+        delay(BAND_DELAY_MS);
+      }
+    }
+    else if (photoSensorValue < BAND_THRESHOLD) {
+      lookingForBand = true;
+    }
     driveFullSpeed();
   }
+}
+
+void change_color()
+{
+  int red = 0, green = 0, blue = 0;
+
+  displayColor++;
+  switch displayColor {
+    case 1:
+      red = 255;
+      break;
+    case 2:
+      green = 255;
+      break;
+    case 3:
+      blue = 255;
+      displayColor = 0;
+  }
+  set_color(red, green, blue);
 }
 
 void set_color(int red, int green, int blue)
@@ -126,4 +168,15 @@ void driveSpeed(int leftMotorSpeed, int rightMotorSpeed)
 {
   LeftServo.write(map(leftMotorSpeed, -100, 100, 180, 0));
   RightServo.write(map(rightMotorSpeed, -100, 100, 0, 180));
+}
+
+bool isDriving()
+{
+  if (startedDriving) {
+    return true;
+  }
+  if (previousButtonValue != digitalRead(PUSH_BUTTON_PIN)) {
+      startedDriving = true;
+  }
+  return startedDriving;
 }
