@@ -171,8 +171,8 @@ void stopWheels()
 // This is -100 to 100 with 0 being stopped
 void driveSpeed(int leftMotorSpeed, int rightMotorSpeed)
 {
-  LeftServo.write(map(leftMotorSpeed, -100, 100, 180, 0));
-  RightServo.write(map(rightMotorSpeed, -100, 100, 0, 180));
+  LeftServo.write(map(leftMotorSpeed, 100, -100, 180, 0));
+  RightServo.write(map(rightMotorSpeed, 100, -100, 0, 180));
 }
 
 bool isDriving()
