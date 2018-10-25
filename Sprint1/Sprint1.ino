@@ -4,8 +4,8 @@
 
 const int MAX_DISTANCE_CM = 400;    // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
 const int BLAST_ZONE_CM = 10;       // Closest distance we can get to the end zone
-const int BAND_THRESHOLD = 600;     // Photo sensor value distinguishing between white and a color band
-const int BAND_DELAY_MS = 3 * 1000; // Number of milliseconds to pause in the color band
+const int BAND_THRESHOLD = 700;     // Photo sensor value distinguishing between white and a color band
+const int BAND_DELAY_MS = 1 * 1000; // Number of milliseconds to pause in the color band
 
 // Pin defines
 const int REED_PIN = A0;         // select the input pin for  the reed
@@ -29,7 +29,7 @@ int previousButtonValue;
 NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE_CM); // NewPing setup of pins and maximum distance.
 Servo LeftServo;                                       // create new servo object for the left servo
 Servo RightServo;                                      // create new servo object for the right servo
-LiquidCrystal lcd(7, 8, 9, 10, 11, 12);                // initialize the library with the numbers of the interface pins
+//LiquidCrystal lcd(7, 8, 9, 10, 11, 12);                // initialize the library with the numbers of the interface pins
 
 // make a custom walker characters:
 
@@ -48,19 +48,7 @@ void setup()
   LeftServo.attach(LEFT_SERVO_PIN);
   RightServo.attach(RIGHT_SERVO_PIN);
 
-  set_color(255, 0, 0);
-  delay(500);
   set_color(0, 255, 0);
-  delay(500);
-  set_color(0, 0, 255);
-
-  lcd.begin(16, 2); // initialize LCD and set up the number of columns and rows:
-
-  lcd.createChar(5, walker);       // create a new character
-  lcd.setCursor(byte(0), byte(0)); // Start at Upper left corner
-  lcd.write((byte)5);              // Print walker symbol
-  lcd.print(" Enraged  G's ");     // Print team name
-  lcd.write((byte)5);              // Print walker symbol
 
   Serial.begin(9600); // Initialize the Serial monitor for readings from the robot
 
@@ -81,7 +69,7 @@ void loop()
   int cm_away = sonar.convert_cm(sonar.ping_median());
 
   send_serial_data(cm_away, photoSensorValue, reedValue);
-  update_display(cm_away, photoSensorValue, reedValue);
+  //update_display(cm_away, photoSensorValue, reedValue);
 
   if (cm_away < BLAST_ZONE_CM)
   {
@@ -95,13 +83,15 @@ void loop()
       {
         lookingForBand = false;
         stopWheels();
-        change_color();
+        set_color(255, 0, 0);
+        //      change_color();
         delay(BAND_DELAY_MS);
       }
     }
     else if (photoSensorValue < BAND_THRESHOLD)
     {
       lookingForBand = true;
+      set_color(0, 0, 255);
     }
     driveFullSpeed();
   }
@@ -133,6 +123,7 @@ void set_color(int red, int green, int blue)
   analogWrite(GREEN_LED, green);
   analogWrite(BLUE_LED, blue);
 }
+/*
 
 void update_display(int distance, int photoSensor, int reedValue)
 {
@@ -146,6 +137,7 @@ void update_display(int distance, int photoSensor, int reedValue)
   lcd.print("/");
   lcd.print(reedValue);
 }
+*/
 
 void send_serial_data(int distance, int photoSensor, int reedValue)
 {
@@ -160,7 +152,7 @@ void send_serial_data(int distance, int photoSensor, int reedValue)
 
 void driveFullSpeed()
 {
-  driveSpeed(100, 100);
+  driveSpeed(50, 50);
 }
 
 void stopWheels()
