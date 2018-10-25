@@ -2,10 +2,10 @@
 #include <NewPing.h>
 #include <LiquidCrystal.h>
 
-const int MAX_DISTANCE_CM = 400; // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
-const int BLAST_ZONE_CM = 10;    // Closest distance we can get to the end zone
-const int BAND_THRESHOLD = 600;  // Photo sensor value distinguishing between white and a color band
-const int BAND_DELAY_MS = 3*1000; // Number of milliseconds to pause in the color band
+const int MAX_DISTANCE_CM = 400;    // Maximum distance we want to ping for (in centimeters). Maximum sensor distance is rated at 400-500cm.
+const int BLAST_ZONE_CM = 10;       // Closest distance we can get to the end zone
+const int BAND_THRESHOLD = 600;     // Photo sensor value distinguishing between white and a color band
+const int BAND_DELAY_MS = 3 * 1000; // Number of milliseconds to pause in the color band
 
 // Pin defines
 const int REED_PIN = A0;         // select the input pin for  the reed
@@ -19,7 +19,7 @@ const int RED_LED = 11;
 const int GREEN_LED = 12;
 const int BLUE_LED = 13;
 
-const int PUSH_BUTTON_PIN = 10;  // Pin for the push button that will start the car moving
+const int PUSH_BUTTON_PIN = 7; // Pin for the push button that will start the car moving
 
 bool startedDriving = false;
 bool lookingForBand = true;
@@ -70,7 +70,8 @@ void setup()
 
 void loop()
 {
-  if (!isDriving()) {
+  if (!isDriving())
+  {
     return;
   }
 
@@ -88,15 +89,18 @@ void loop()
   }
   else
   {
-    if (lookingForBand) {
-      if (photoSensorValue > BAND_THRESHOLD) {
+    if (lookingForBand)
+    {
+      if (photoSensorValue > BAND_THRESHOLD)
+      {
         lookingForBand = false;
         stopWheels();
         change_color();
         delay(BAND_DELAY_MS);
       }
     }
-    else if (photoSensorValue < BAND_THRESHOLD) {
+    else if (photoSensorValue < BAND_THRESHOLD)
+    {
       lookingForBand = true;
     }
     driveFullSpeed();
@@ -108,16 +112,17 @@ void change_color()
   int red = 0, green = 0, blue = 0;
 
   displayColor++;
-  switch displayColor {
-    case 1:
-      red = 255;
-      break;
-    case 2:
-      green = 255;
-      break;
-    case 3:
-      blue = 255;
-      displayColor = 0;
+  switch (displayColor)
+  {
+  case 1:
+    red = 255;
+    break;
+  case 2:
+    green = 255;
+    break;
+  case 3:
+    blue = 255;
+    displayColor = 0;
   }
   set_color(red, green, blue);
 }
@@ -172,11 +177,13 @@ void driveSpeed(int leftMotorSpeed, int rightMotorSpeed)
 
 bool isDriving()
 {
-  if (startedDriving) {
+  if (startedDriving)
+  {
     return true;
   }
-  if (previousButtonValue != digitalRead(PUSH_BUTTON_PIN)) {
-      startedDriving = true;
+  if (previousButtonValue != digitalRead(PUSH_BUTTON_PIN))
+  {
+    startedDriving = true;
   }
   return startedDriving;
 }
